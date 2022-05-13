@@ -1,6 +1,6 @@
 import { createPortal } from "react-dom";
-import { useEffect } from "react";
-import { connect, useDispatch, useSelector } from "react-redux";
+import { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { changeDishForAdd, changeModalStatus } from "../../redux/actions";
 import style from "./Modal.module.css";
 import { getCurrentColumnForModal, getDishes } from "../../redux/selectors";
@@ -12,17 +12,20 @@ function Modal() {
   const dishes = useSelector((store) => getDishes(store));
   const currentCulomn = useSelector((store) => getCurrentColumnForModal(store));
 
+  const handleKeydown = useCallback(
+    (event) => {
+      if (event.code === "Escape") {
+        dispatch(changeModalStatus());
+      }
+    },
+    [dispatch]
+  );
+
   useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
 
     return () => window.removeEventListener("keydown", handleKeydown);
-  }, []);
-
-  function handleKeydown(event) {
-    if (event.code === "Escape") {
-      dispatch(changeModalStatus());
-    }
-  }
+  }, [handleKeydown]);
 
   function handleBackdropClick(event) {
     if (event.target === event.currentTarget) {
