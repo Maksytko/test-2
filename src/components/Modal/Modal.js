@@ -1,13 +1,13 @@
 import { createPortal } from "react-dom";
 import { useEffect } from "react";
 import { connect } from "react-redux";
-import { changeModalStatus } from "../../redux/actions";
+import { changeDishForAdd, changeModalStatus } from "../../redux/actions";
 import style from "./Modal.module.css";
-import { getDishes } from "../../redux/selectors";
+import { getCurrentColumnForModal, getDishes } from "../../redux/selectors";
 
 const modalRoot = document.getElementById("modal-root");
 
-function Modal({ changeModalStatus, dishes, addDishToColumn }) {
+function Modal({ changeModalStatus, dishes, currentCulomn, changeDishForAdd }) {
   useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
 
@@ -32,9 +32,18 @@ function Modal({ changeModalStatus, dishes, addDishToColumn }) {
         <ul>
           {dishes.map((dish) => {
             return (
-              <li>
-                <p>{dish.title}</p>
-                <button onClick={() => addDishToColumn(dish)}>add</button>
+              <li key={dish.title}>
+                <p style={{ color: "white" }}>{dish.title}</p>
+                <button
+                  onClick={() => {
+                    changeDishForAdd({
+                      ...dish,
+                      to: currentCulomn,
+                    });
+                  }}
+                >
+                  Добавить
+                </button>
               </li>
             );
           })}
@@ -47,10 +56,12 @@ function Modal({ changeModalStatus, dishes, addDishToColumn }) {
 
 const mapDispatchToProps = (dispatch) => ({
   changeModalStatus: () => dispatch(changeModalStatus()),
+  changeDishForAdd: (dish) => dispatch(changeDishForAdd(dish)),
 });
 
 const mapStateToProps = (store) => ({
   dishes: getDishes(store),
+  currentCulomn: getCurrentColumnForModal(store),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Modal);

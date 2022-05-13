@@ -1,64 +1,115 @@
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDrop } from "react-dnd";
 import { connect } from "react-redux";
-import { changeModalStatus } from "../../redux/actions";
-
+import {
+  changeCurrentColumnForModal,
+  changeModalStatus,
+} from "../../redux/actions";
+import { getDishForAdd } from "../../redux/selectors";
 import DishItem from "../DishItem/DishItem";
+import update from "immutability-helper";
+import { v4 as uuidv4 } from "uuid";
 
 const style = {
-  height: "12rem",
-  width: "12rem",
+  height: "500px",
+  width: "1000px",
   marginRight: "1.5rem",
   marginBottom: "1.5rem",
   backgroundColor: "blue",
   padding: "1rem",
 };
 
-function DishesColumn({ title, changeModalStatus }) {
-  const [dishes, setDishes] = useState([
-    { title: "борщ" },
-    { title: "гречневая каша" },
-    { title: "пицца" },
-  ]);
-  const [{ item }, drop] = useDrop(() => ({
+function DishesColumn({
+  title,
+  dishForDelete,
+  setDishForDelete,
+  changeCurrentColumnForModal,
+  dishForAdd,
+  changeModalStatus,
+}) {
+  const [dishes, setDishes] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const [, drop] = useDrop(() => ({
     accept: "dish",
     drop: (item) => {
-      setDishes([...dishes, item]);
+      if (item.from !== title) {
+        setDishes((prevState) => [...prevState, { ...item }]);
+        setDishForDelete(item);
+      }
     },
-    collect: (monitor) => ({
-      item: monitor.getItem(),
-    }),
+    hover: (item) => setSelectedItem(item),
   }));
 
-  console.log(item);
+  useEffect(() => {
+    if (dishForDelete?.from === title) {
+      setDishes((prevState) => {
+        return prevState.filter((dish) => dish.id !== dishForDelete.id);
+      });
+      setDishForDelete(null);
+    }
+  }, [dishForDelete, setDishForDelete, title]);
 
-  // function checkDishes(item) {
-  //   if (item) {
-  //     const result = dishes.find((dish) => dish.title === item.title);
+  useEffect(() => {
+    if (dishForAdd?.to === title) {
+      setDishes((prevState) => [
+        ...prevState,
+        { title: dishForAdd.title, id: uuidv4() },
+      ]);
+    }
+  }, [dishForAdd, title]);
 
-  //     if (!result) {
-  //       setDishes([...dishes, item]);
-  //       return;
-  //     }
-  //     return;
-  //   }
-  // }
+  const moveCard = useCallback(
+    (dragIndex, hoverIndex) => {
+      setDishes((prevCards) => {
+        if (prevCards.find((dish) => dish.id === selectedItem.id)) {
+          return update(prevCards, {
+            $splice: [
+              [dragIndex, 1],
+              [hoverIndex, 0, selectedItem],
+            ],
+          });
+        } else {
+          return prevCards;
+        }
+      });
+    },
+    [selectedItem]
+  );
 
   return (
     <div ref={drop} style={{ ...style }}>
       <p>{title}</p>
-      {dishes.map((dish) => (
-        <DishItem text={dish.title} title={title} key={dish.title} />
+      {dishes?.map((dish, i) => (
+        <DishItem
+          text={dish.title}
+          id={dish.id}
+          index={i}
+          columnTitle={title}
+          key={dish.id}
+          moveCard={moveCard}
+        />
       ))}
-      <button onClick={changeModalStatus}></button>
+      <button
+        onClick={() => {
+          changeCurrentColumnForModal(title);
+          changeModalStatus();
+        }}
+      >
+        Добавить блюдо
+      </button>
     </div>
   );
 }
 
-const mapStateToProps = () => {};
+const mapStateToProps = (store) => ({
+  dishForAdd: getDishForAdd(store),
+});
 
 const mapDispatchToProps = (dispatch) => ({
   changeModalStatus: () => dispatch(changeModalStatus()),
+  changeCurrentColumnForModal: (title) =>
+    dispatch(changeCurrentColumnForModal(title)),
 });
 
-export default connect(null, mapDispatchToProps)(DishesColumn);
+export default connect(mapStateToProps, mapDispatchToProps)(DishesColumn);

@@ -1,14 +1,15 @@
 import { combineReducers, createReducer } from "@reduxjs/toolkit";
 import {
   addDishes,
-  changeCurrentColumnDishes,
+  changeDishForAdd,
+  changeCurrentColumnForModal,
   changeModalStatus,
 } from "./actions";
 
 const initState = {
   dishes: [],
-  currentColumnDishes: [],
   dishForAdd: null,
+  currentColumnForModal: null,
   modalStatus: false,
 };
 
@@ -16,10 +17,14 @@ const dishesReducer = createReducer(initState.dishes, {
   [addDishes]: (_, { payload }) => payload,
 });
 
-const currentColumnDishesReducer = createReducer(
-  initState.currentColumnDishes,
+const dishForAddReducer = createReducer(initState.dishForAdd, {
+  [changeDishForAdd]: (_, { payload }) => payload,
+});
+
+const currentColumnForModalReducer = createReducer(
+  initState.currentColumnForModal,
   {
-    [changeCurrentColumnDishes]: (_, { payload }) => payload,
+    [changeCurrentColumnForModal]: (_, { payload }) => payload,
   }
 );
 
@@ -29,7 +34,8 @@ const modalStatusReducer = createReducer(initState.modalStatus, {
 
 const reducer = combineReducers({
   dishes: dishesReducer,
-  currentColumnDishes: currentColumnDishesReducer,
+  dishForAdd: dishForAddReducer,
+  currentColumnForModal: currentColumnForModalReducer,
   modalStatus: modalStatusReducer,
 });
 
