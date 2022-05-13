@@ -1,32 +1,20 @@
 import { useEffect, useState, useCallback } from "react";
 import { useDrop } from "react-dnd";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import update from "immutability-helper";
+import { v4 as uuidv4 } from "uuid";
+import style from "./DishesColumn.module.css";
+
 import {
   changeCurrentColumnForModal,
   changeModalStatus,
 } from "../../redux/actions";
 import { getDishForAdd } from "../../redux/selectors";
 import DishItem from "../DishItem/DishItem";
-import update from "immutability-helper";
-import { v4 as uuidv4 } from "uuid";
 
-const style = {
-  height: "500px",
-  width: "1000px",
-  marginRight: "1.5rem",
-  marginBottom: "1.5rem",
-  backgroundColor: "blue",
-  padding: "1rem",
-};
-
-function DishesColumn({
-  title,
-  dishForDelete,
-  setDishForDelete,
-  changeCurrentColumnForModal,
-  dishForAdd,
-  changeModalStatus,
-}) {
+function DishesColumn({ title, dishForDelete, setDishForDelete }) {
+  const dispatch = useDispatch();
+  const dishForAdd = useSelector((store) => getDishForAdd(store));
   const [dishes, setDishes] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -78,8 +66,17 @@ function DishesColumn({
   );
 
   return (
-    <div ref={drop} style={{ ...style }}>
-      <p>{title}</p>
+    <div ref={drop} className={style.div}>
+      <p className={style.title}>{title}</p>
+      <button
+        className={style.button}
+        onClick={() => {
+          dispatch(changeCurrentColumnForModal(title));
+          dispatch(changeModalStatus());
+        }}
+      >
+        Добавить блюдо
+      </button>
       {dishes?.map((dish, i) => (
         <DishItem
           text={dish.title}
@@ -90,26 +87,8 @@ function DishesColumn({
           moveCard={moveCard}
         />
       ))}
-      <button
-        onClick={() => {
-          changeCurrentColumnForModal(title);
-          changeModalStatus();
-        }}
-      >
-        Добавить блюдо
-      </button>
     </div>
   );
 }
 
-const mapStateToProps = (store) => ({
-  dishForAdd: getDishForAdd(store),
-});
-
-const mapDispatchToProps = (dispatch) => ({
-  changeModalStatus: () => dispatch(changeModalStatus()),
-  changeCurrentColumnForModal: (title) =>
-    dispatch(changeCurrentColumnForModal(title)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(DishesColumn);
+export default DishesColumn;

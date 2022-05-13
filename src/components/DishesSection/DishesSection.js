@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import style from "./DishesSection.module.css";
@@ -11,14 +11,16 @@ import { getModalStatus } from "../../redux/selectors";
 import DishesColumn from "../DishesColumn/DishesColumn";
 import Modal from "../Modal/Modal";
 
-function DishesSection({ addDishes, modalStatus }) {
+function DishesSection() {
+  const dispatch = useDispatch();
+  const modalStatus = useSelector((state) => getModalStatus(state));
   const [dishForDelete, setDishForDelete] = useState(null);
 
   useEffect(() => {
     const data = fetchDishes();
     const parsedData = JSON.parse(data);
-    addDishes(parsedData);
-  }, [addDishes]);
+    dispatch(addDishes(parsedData));
+  }, [dispatch]);
 
   function setDish(dish) {
     setDishForDelete(dish);
@@ -29,12 +31,17 @@ function DishesSection({ addDishes, modalStatus }) {
       <DndProvider backend={HTML5Backend}>
         <section className={style.section}>
           <DishesColumn
+            title="завтрак"
+            dishForDelete={dishForDelete}
+            setDishForDelete={setDish}
+          />
+          <DishesColumn
             title="обед"
             dishForDelete={dishForDelete}
             setDishForDelete={setDish}
           />
           <DishesColumn
-            title="завтрак"
+            title="ужин"
             dishForDelete={dishForDelete}
             setDishForDelete={setDish}
           />
@@ -45,12 +52,4 @@ function DishesSection({ addDishes, modalStatus }) {
   );
 }
 
-const mapDispatchToProps = (dispatch) => ({
-  addDishes: (data) => dispatch(addDishes(data)),
-});
-
-const mapStateToProps = (store) => ({
-  modalStatus: getModalStatus(store),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(DishesSection);
+export default DishesSection;

@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
+import style from "./DishItem.module.css";
 
 function DishItem({ text, id, columnTitle, index, moveCard }) {
   const ref = useRef(null);
@@ -46,12 +47,10 @@ function DishItem({ text, id, columnTitle, index, moveCard }) {
       const hoverClientY = clientOffset.y - hoverBoundingRect.top;
 
       if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-        console.log(1);
         return;
       }
 
       if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-        console.log(2);
         return;
       }
 
@@ -65,18 +64,14 @@ function DishItem({ text, id, columnTitle, index, moveCard }) {
 
   return (
     <div
+      className={style.div}
       ref={ref}
       style={{
         opacity: isDragging ? 0 : 1,
-        fontSize: 25,
-        fontWeight: "bold",
-        cursor: "move",
-        color: "black",
-        border: "2px solid",
       }}
       data-handler-id={handlerId}
     >
-      <p>{text}</p>
+      <p className={style.text}>{text}</p>
     </div>
   );
 }

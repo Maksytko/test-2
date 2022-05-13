@@ -1,0 +1,15 @@
+.div {
+  background: #2196f3;
+  border: 0px;
+  border-radius: 4px;
+  margin-top: 15px;
+  width: 200px;
+  cursor: grab;
+}
+
+.text {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 30px;
+  color: #ffffff;
+}

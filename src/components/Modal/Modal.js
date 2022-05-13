@@ -1,13 +1,17 @@
 import { createPortal } from "react-dom";
 import { useEffect } from "react";
-import { connect } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { changeDishForAdd, changeModalStatus } from "../../redux/actions";
 import style from "./Modal.module.css";
 import { getCurrentColumnForModal, getDishes } from "../../redux/selectors";
 
 const modalRoot = document.getElementById("modal-root");
 
-function Modal({ changeModalStatus, dishes, currentCulomn, changeDishForAdd }) {
+function Modal() {
+  const dispatch = useDispatch();
+  const dishes = useSelector((store) => getDishes(store));
+  const currentCulomn = useSelector((store) => getCurrentColumnForModal(store));
+
   useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
 
@@ -16,31 +20,37 @@ function Modal({ changeModalStatus, dishes, currentCulomn, changeDishForAdd }) {
 
   function handleKeydown(event) {
     if (event.code === "Escape") {
-      changeModalStatus();
+      dispatch(changeModalStatus());
     }
   }
 
   function handleBackdropClick(event) {
     if (event.target === event.currentTarget) {
-      changeModalStatus();
+      dispatch(changeModalStatus());
     }
   }
 
   return createPortal(
     <div onClick={handleBackdropClick} className={style.Overlay}>
       <div className={style.Modal}>
-        <ul>
+        <button onClick={handleBackdropClick} className={style.exit_button}>
+          X
+        </button>
+        <ul className={style.list}>
           {dishes.map((dish) => {
             return (
-              <li key={dish.title}>
-                <p style={{ color: "white" }}>{dish.title}</p>
+              <li key={dish.title} className={style.item}>
+                <p className={style.text}>{dish.title}</p>
                 <button
-                  onClick={() => {
-                    changeDishForAdd({
-                      ...dish,
-                      to: currentCulomn,
-                    });
-                  }}
+                  onClick={() =>
+                    dispatch(
+                      changeDishForAdd({
+                        ...dish,
+                        to: currentCulomn,
+                      })
+                    )
+                  }
+                  className={style.button}
                 >
                   Добавить
                 </button>
@@ -54,14 +64,4 @@ function Modal({ changeModalStatus, dishes, currentCulomn, changeDishForAdd }) {
   );
 }
 
-const mapDispatchToProps = (dispatch) => ({
-  changeModalStatus: () => dispatch(changeModalStatus()),
-  changeDishForAdd: (dish) => dispatch(changeDishForAdd(dish)),
-});
-
-const mapStateToProps = (store) => ({
-  dishes: getDishes(store),
-  currentCulomn: getCurrentColumnForModal(store),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Modal);
+export default Modal;
