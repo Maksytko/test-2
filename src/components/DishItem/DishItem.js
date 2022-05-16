@@ -4,8 +4,7 @@ import style from "./DishItem.module.css";
 
 function DishItem({ text, id, columnTitle, index, moveCard }) {
   const ref = useRef(null);
-
-  const [{ isDragging }, drag] = useDrag(() => ({
+  const [{ isDragging }, drag] = useDrag({
     item: {
       title: text,
       id,
@@ -15,9 +14,8 @@ function DishItem({ text, id, columnTitle, index, moveCard }) {
     type: "dish",
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
-      handlerId: monitor.getHandlerId(),
     }),
-  }));
+  });
 
   const [{ handlerId }, drop] = useDrop({
     accept: "dish",
@@ -53,7 +51,6 @@ function DishItem({ text, id, columnTitle, index, moveCard }) {
       if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
         return;
       }
-
       moveCard(dragIndex, hoverIndex);
 
       item.index = hoverIndex;

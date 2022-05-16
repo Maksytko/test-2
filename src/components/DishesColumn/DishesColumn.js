@@ -22,11 +22,14 @@ function DishesColumn({ title, dishForDelete, setDishForDelete }) {
     accept: "dish",
     drop: (item) => {
       if (item.from !== title) {
-        setDishes((prevState) => [...prevState, { ...item }]);
+        setDishes((prevState) => [
+          ...prevState,
+          { title: item.title, id: item.id },
+        ]);
         setDishForDelete(item);
       }
     },
-    hover: (item) => setSelectedItem(item),
+    hover: (item) => setSelectedItem({ title: item.title, id: item.id }),
   }));
 
   useEffect(() => {
@@ -54,7 +57,7 @@ function DishesColumn({ title, dishForDelete, setDishForDelete }) {
           return update(prevCards, {
             $splice: [
               [dragIndex, 1],
-              [hoverIndex, 0, selectedItem],
+              [hoverIndex, 0, prevCards[dragIndex]],
             ],
           });
         } else {
