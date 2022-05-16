@@ -13,7 +13,7 @@ import Modal from "../Modal/Modal";
 
 function DishesSection() {
   const dispatch = useDispatch();
-  const modalStatus = useSelector((state) => getModalStatus(state));
+  const modalStatus = useSelector(getModalStatus);
   const [dishForDelete, setDishForDelete] = useState(null);
 
   useEffect(() => {

@@ -14,7 +14,7 @@ import DishItem from "../DishItem/DishItem";
 
 function DishesColumn({ title, dishForDelete, setDishForDelete }) {
   const dispatch = useDispatch();
-  const dishForAdd = useSelector((store) => getDishForAdd(store));
+  const dishForAdd = useSelector(getDishForAdd);
   const [dishes, setDishes] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
 

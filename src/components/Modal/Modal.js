@@ -9,8 +9,8 @@ const modalRoot = document.getElementById("modal-root");
 
 function Modal() {
   const dispatch = useDispatch();
-  const dishes = useSelector((store) => getDishes(store));
-  const currentCulomn = useSelector((store) => getCurrentColumnForModal(store));
+  const dishes = useSelector(getDishes);
+  const currentCulomn = useSelector(getCurrentColumnForModal);
 
   const handleKeydown = useCallback(
     (event) => {
